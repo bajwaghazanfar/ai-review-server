@@ -67,6 +67,7 @@ app.post("/get", async (req, res) => {
     // Fetch the product with its reviews
     let product = await getProductByIdWithReviews(product_id);
 
+    console.log(product_id, title, description);
     // If the product doesn't exist, create it
     if (!product) {
       product = await createProduct(product_id, title, description);
@@ -74,8 +75,10 @@ app.post("/get", async (req, res) => {
       product = await getProductByIdWithReviews(product_id);
     }
 
+    res.status(200).json(product);
+
     // Check if the product has reviews
-    if (product.reviews === undefined) {
+    if (product && product.reviews === undefined) {
       // No reviews exist; generate and create reviews
       const allGeneratedReviews = await generateReviews(product);
       console.log(allGeneratedReviews, "allGeneratedReviews");
@@ -101,9 +104,6 @@ app.post("/get", async (req, res) => {
         await createMultipleReviews(allGeneratedReviews);
       }
     }
-
-    // Respond with the product and its reviews
-    res.status(200).json(product);
   } catch (error) {
     console.error("Internal server error:", error);
     res.status(500).json({ message: "Internal server error" });
